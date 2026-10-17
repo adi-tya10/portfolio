@@ -668,6 +668,10 @@ body::-webkit-scrollbar {
   margin: 2.5rem auto 1rem auto;
 }
 
+.experience-dots-container {
+  display: none;
+}
+
 .visa-card {
   width: 100%;
   max-width: 25.5rem;
@@ -902,8 +906,8 @@ body::-webkit-scrollbar {
   font-family: var(--font-mono);
 }
 
-/* Mobile Horizontal Peeking Carousel for Experience Cards (< 640px) */
-@media (max-width: 640px) {
+/* Mobile Horizontal Peeking Carousel for Experience Cards (< 768px) */
+@media (max-width: 768px) {
   #experience {
     padding: 3.5rem 1rem 2rem 1rem !important;
   }
@@ -912,16 +916,20 @@ body::-webkit-scrollbar {
     display: flex !important;
     flex-wrap: nowrap !important;
     overflow-x: auto !important;
+    overflow-y: hidden !important;
+    justify-content: flex-start !important; /* Fix: flex-start prevents card 0 from clipping into negative scroll area */
     scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     gap: 0.9rem !important;
     width: 100vw !important;
     max-width: 100vw !important;
     margin-left: -1rem !important;
     margin-right: -1rem !important;
-    padding: 0.5rem 1.25rem 1.25rem 1.25rem !important;
+    padding: 0.5rem calc((100vw - min(78vw, 295px)) / 2) 1.25rem calc((100vw - min(78vw, 295px)) / 2) !important;
     scrollbar-width: none;
     box-sizing: border-box;
+    overscroll-behavior-x: contain;
   }
 
   .experience-cards-track::-webkit-scrollbar {
@@ -930,13 +938,13 @@ body::-webkit-scrollbar {
 
   /* Compact card size showing clear peek of the next card in queue - ZERO BOTTOM SHADOW */
   .experience-cards-track .visa-card {
-    flex: 0 0 78vw !important;
-    width: 78vw !important;
+    flex: 0 0 min(78vw, 295px) !important;
+    width: min(78vw, 295px) !important;
     max-width: 295px !important;
     min-width: 250px !important;
     height: 12.2rem !important;
     scroll-snap-align: center;
-    scroll-snap-stop: always;
+    scroll-snap-stop: normal;
     border-radius: 1rem !important;
     box-shadow: none !important;
     filter: none !important;
@@ -1032,6 +1040,30 @@ body::-webkit-scrollbar {
     padding-top: 0.2rem !important;
     font-size: 0.48rem !important;
     letter-spacing: 0.05em !important;
+  }
+
+  .experience-dots-container {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0.75rem 0 0.5rem 0;
+  }
+
+  .experience-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: rgba(0, 0, 0, 0.2);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.25s ease;
+  }
+
+  .experience-dot.active {
+    width: 22px;
+    background: #18181b;
   }
 
   .geo-pin {
@@ -1285,15 +1317,34 @@ body::-webkit-scrollbar {
   }
 }
 
-/* Floating Glassmorphism Island Dock */
-.menu-bar {
+/* Floating Glassmorphism Island Dock (Desktop Navigation) */
+.menu-bar,
+.desktop-dock {
+  position: fixed;
+  bottom: 1.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 3.85rem;
+  width: calc(100% - 2rem);
+  max-width: 30.5rem;
+  border-radius: 9999px;
+  padding: 0.35rem 0.45rem 0.35rem 0.65rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #ffffff;
   background-color: rgba(24, 24, 27, 0.96);
   background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
   background-size: 6px 6px;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  box-sizing: border-box;
+  pointer-events: auto;
 }
 
 .dock-home-btn {
@@ -2159,6 +2210,7 @@ body::-webkit-scrollbar {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    contain: layout paint;
   }
 
   .hero-wave-svg {
@@ -2169,7 +2221,7 @@ body::-webkit-scrollbar {
     position: absolute !important;
     left: 50% !important;
     top: 50% !important;
-    transform: translate(-50%, -50%) rotate(45deg) scale(1.45) !important;
+    transform: translate3d(-50%, -50%, 0) rotate(45deg) scale(1.45) !important;
     transform-origin: center center !important;
     will-change: transform;
     pointer-events: none !important;
@@ -2188,9 +2240,8 @@ body::-webkit-scrollbar {
     fill: #a1a1aa !important;
     opacity: 0.75 !important;
     letter-spacing: 0.04em !important;
-    text-rendering: geometricPrecision;
-    shape-rendering: geometricPrecision;
-    font-feature-settings: "kern" 1;
+    text-rendering: optimizeSpeed !important;
+    shape-rendering: optimizeSpeed !important;
   }
 
   /* Hide Desktop Center Island Dock */
@@ -2205,7 +2256,7 @@ body::-webkit-scrollbar {
     position: fixed;
     bottom: 1.5rem;
     left: 1.25rem;
-    z-index: 1000;
+    z-index: 1005;
   }
 
   .mobile-fab-btn {
@@ -2220,8 +2271,9 @@ body::-webkit-scrollbar {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: transform 0.36s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.25s ease, background 0.2s ease;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, background 0.2s ease;
     outline: none;
+    will-change: transform, opacity;
   }
 
   .mobile-fab-btn:active {
@@ -2230,41 +2282,41 @@ body::-webkit-scrollbar {
 
   .mobile-fab-btn.is-active-menu {
     opacity: 0;
-    transform: scale(0.5);
+    transform: scale(0.4);
     pointer-events: none;
   }
 
-  /* Mobile Backdrop for Outside Click Dismissal */
+  /* Hardware-Accelerated Mobile Backdrop */
   .mobile-menu-backdrop {
     display: block !important;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.38);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    z-index: 998;
-    transition: opacity 0.25s ease;
+    background: rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1000;
+    will-change: opacity;
   }
 
   .mobile-menu-backdrop.is-opening {
-    animation: mobileBackdropFadeIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: mobileBackdropFadeIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .mobile-menu-backdrop.is-closing {
-    animation: mobileBackdropFadeOut 0.26s ease forwards;
+    animation: mobileBackdropFadeOut 0.22s ease-out forwards;
   }
 
   @keyframes mobileBackdropFadeIn {
-    from { opacity: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
-    to { opacity: 1; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+    from { opacity: 0; }
+    to { opacity: 1; }
   }
 
   @keyframes mobileBackdropFadeOut {
-    from { opacity: 1; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
-    to { opacity: 0; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); }
+    from { opacity: 1; }
+    to { opacity: 0; }
   }
 
-  /* Animated Expandable Menu Card - macOS Scale / Maximize & Minimize */
+  /* Ultra-Smooth Hardware-Accelerated 60/120fps Expandable Menu Card */
   .mobile-menu-card {
     display: flex !important;
     position: fixed;
@@ -2281,70 +2333,43 @@ body::-webkit-scrollbar {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 1001;
+    z-index: 1006;
     transform-origin: 28px calc(100% - 28px);
-    will-change: transform, opacity, border-radius, filter;
+    will-change: transform, opacity;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    transform: translate3d(0, 0, 0);
   }
 
-  /* macOS Maximize (Open) Animation */
+  /* Instant, Buttery-Smooth iOS/macOS Spring Open Animation (Compositor Only) */
   .mobile-menu-card.is-opening {
-    animation: macMaximize 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: mobileMenuSpringOpen 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
-  /* macOS Minimize (Close) Animation */
+  /* Snappy, Frictionless Minimize Close Animation */
   .mobile-menu-card.is-closing {
-    animation: macMinimize 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation: mobileMenuSmoothClose 0.22s cubic-bezier(0.2, 0, 0, 1) forwards;
   }
 
-  @keyframes macMaximize {
+  @keyframes mobileMenuSpringOpen {
     0% {
       opacity: 0;
-      transform: perspective(850px) scale3d(0.18, 0.18, 1) rotateX(12deg) translateY(16px);
-      border-radius: 50%;
-      filter: blur(6px);
-    }
-    60% {
-      opacity: 1;
-      filter: blur(0px);
-    }
-    78% {
-      opacity: 1;
-      transform: perspective(850px) scale3d(1.025, 1.02, 1) rotateX(-1.5deg) translateY(-2px);
-      border-radius: 38px;
+      transform: scale(0.25) translate3d(0, 12px, 0);
     }
     100% {
       opacity: 1;
-      transform: perspective(850px) scale3d(1, 1, 1) rotateX(0deg) translateY(0);
-      border-radius: 36px;
-      filter: blur(0px);
+      transform: scale(1) translate3d(0, 0, 0);
     }
   }
 
-  @keyframes macMinimize {
+  @keyframes mobileMenuSmoothClose {
     0% {
       opacity: 1;
-      transform: perspective(850px) scale3d(1, 1, 1) rotateX(0deg) translateY(0);
-      border-radius: 36px;
-      filter: blur(0px);
-    }
-    30% {
-      opacity: 0.95;
-      transform: perspective(850px) scale3d(0.92, 0.94, 1) rotateX(-2deg) translateY(6px);
-      border-radius: 40px;
-    }
-    70% {
-      opacity: 0.65;
-      transform: perspective(850px) scale3d(0.40, 0.36, 1) rotateX(10deg) translateY(16px);
-      border-radius: 46px;
-      filter: blur(2px);
+      transform: scale(1) translate3d(0, 0, 0);
     }
     100% {
       opacity: 0;
-      transform: perspective(850px) scale3d(0.14, 0.14, 1) rotateX(16deg) translateY(24px);
-      border-radius: 50%;
-      filter: blur(5px);
+      transform: scale(0.3) translate3d(0, 14px, 0);
     }
   }
 
@@ -2364,28 +2389,13 @@ body::-webkit-scrollbar {
     cursor: pointer;
     padding: 4px;
     border-radius: 50%;
-    transition: color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+    transition: color 0.18s ease, transform 0.18s ease, background 0.18s ease;
   }
 
   .mobile-menu-close-btn:hover {
     color: #ffffff;
     background: rgba(255, 255, 255, 0.12);
     transform: scale(1.1);
-  }
-
-  .mobile-menu-card.is-opening .mobile-menu-close-btn {
-    animation: macCloseButtonReveal 0.32s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-  }
-
-  @keyframes macCloseButtonReveal {
-    0% {
-      opacity: 0;
-      transform: scale(0.6) rotate(-45deg);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) rotate(0deg);
-    }
   }
 
   /* Centered Menu Links List */
@@ -2398,6 +2408,28 @@ body::-webkit-scrollbar {
     width: 100%;
     padding-top: 1.4rem;
     padding-bottom: 0.6rem;
+    will-change: opacity, transform;
+  }
+
+  .mobile-menu-card.is-opening .mobile-menu-items-list {
+    animation: mobileMenuItemsFade 0.24s ease-out 0.05s both;
+  }
+
+  @keyframes mobileMenuItemsFade {
+    0% {
+      opacity: 0;
+      transform: translate3d(0, 8px, 0);
+    }
+    100% {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .mobile-menu-card.is-closing .mobile-menu-items-list,
+  .mobile-menu-card.is-closing .mobile-menu-close-btn {
+    opacity: 0;
+    transition: opacity 0.12s ease;
   }
 
   .mobile-menu-link {
@@ -2407,10 +2439,11 @@ body::-webkit-scrollbar {
     text-decoration: none;
     letter-spacing: -0.015em;
     text-align: center;
-    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease, color 0.2s ease;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), color 0.18s ease;
     user-select: none;
     display: inline-block;
     padding: 0.15rem 1rem;
+    will-change: transform;
   }
 
   .mobile-menu-link:hover,
@@ -2419,49 +2452,22 @@ body::-webkit-scrollbar {
     color: #38bdf8;
   }
 
-  .mobile-menu-card.is-opening .mobile-menu-link {
-    animation: macItemReveal 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .mobile-menu-card.is-opening .mobile-menu-link:nth-child(1) { animation-delay: 0.08s; }
-  .mobile-menu-card.is-opening .mobile-menu-link:nth-child(2) { animation-delay: 0.13s; }
-  .mobile-menu-card.is-opening .mobile-menu-link:nth-child(3) { animation-delay: 0.18s; }
-  .mobile-menu-card.is-opening .mobile-menu-link:nth-child(4) { animation-delay: 0.23s; }
-
-  @keyframes macItemReveal {
-    0% {
-      opacity: 0;
-      transform: translateY(12px) scale(0.96);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-    }
-  }
-
-  /* Fade out content cleanly during minimize */
-  .mobile-menu-card.is-closing .mobile-menu-items-list,
-  .mobile-menu-card.is-closing .mobile-menu-close-btn {
-    animation: macContentCollapse 0.16s ease forwards;
-  }
-
-  @keyframes macContentCollapse {
-    0% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    100% {
-      opacity: 0;
-      transform: scale(0.92);
-    }
-  }
-
-  /* Bottom-Right "Let's talk" Pill Button */
+  /* Bottom-Right "Let's talk" Pill Button (Kept Strictly Behind Opening Box) */
   .mobile-talk-container {
     display: block !important;
     position: fixed;
     bottom: 1.5rem;
     right: 1.25rem;
-    z-index: 1000;
+    z-index: 995; /* Behind backdrop (1000) and mobile-menu-card (1006) */
+    transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s ease;
+    will-change: opacity, transform;
+  }
+
+  /* When menu card is open, dim and keep behind opening box */
+  .mobile-talk-container.is-menu-open {
+    opacity: 0.25;
+    pointer-events: none;
+    transform: scale(0.96);
   }
 
   .mobile-talk-btn {

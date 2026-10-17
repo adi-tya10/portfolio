@@ -520,7 +520,7 @@ const EXPERIENCE_DATA = [
   {
     company: "Employability.life",
     shortOrg: "EMPLOYABILITY.LIFE",
-    cardType: "PLATINUM DEBIT",
+    cardType: "DEBIT",
     cardNumber: "5412  8102  2025  0112",
     validThru: "02/25",
     role: "ML/AI Engineer Intern",
@@ -1235,7 +1235,7 @@ const MOBILE_SKILLS_LIST = [
   "Celery", "Docker", "Rust", "pgvector", "Neo4j", "SQL", "Markdown", "Lua", "CI/CD"
 ];
 const MOBILE_SKILLS_UNIT = MOBILE_SKILLS_LIST.join(" — ") + " — ";
-const MOBILE_SKILLS_STREAM = MOBILE_SKILLS_UNIT.repeat(12);
+const MOBILE_SKILLS_STREAM = MOBILE_SKILLS_UNIT.repeat(3);
 
 
 
@@ -1300,7 +1300,7 @@ export default function App() {
     setMobileMenuState('opening');
     setTimeout(() => {
       setMobileMenuState('open');
-    }, 380);
+    }, 280);
   };
 
   const closeMobileMenu = () => {
@@ -1308,7 +1308,7 @@ export default function App() {
     setMobileMenuState('closing');
     setTimeout(() => {
       setMobileMenuState('closed');
-    }, 280);
+    }, 220);
   };
 
   // Smooth animated redirect to sections
@@ -1438,7 +1438,6 @@ export default function App() {
   const [isProjectsTitleActive, setIsProjectsTitleActive] = useState(false);
 
   const handleProjectsTitleClick = () => {
-    playTactileClickSound();
     setIsProjectsTitleActive(false);
     requestAnimationFrame(() => {
       setIsProjectsTitleActive(true);
@@ -1452,13 +1451,33 @@ export default function App() {
   const [isExperienceTitleActive, setIsExperienceTitleActive] = useState(false);
 
   const handleExperienceTitleClick = () => {
-    playTactileClickSound();
     setIsExperienceTitleActive(false);
     requestAnimationFrame(() => {
       setIsExperienceTitleActive(true);
       setTimeout(() => {
         setIsExperienceTitleActive(false);
       }, 1200);
+    });
+  };
+
+  // Experience Track Mobile Peeking Carousel Handlers
+  const experienceTrackRef = useRef(null);
+  const [activeExpCardIndex, setActiveExpCardIndex] = useState(0);
+
+  const handleExperienceScroll = () => {
+    if (!experienceTrackRef.current) return;
+    const { scrollLeft } = experienceTrackRef.current;
+    const cardWidth = Math.min(window.innerWidth * 0.78, 295) + 14.4;
+    const index = Math.round(scrollLeft / cardWidth);
+    setActiveExpCardIndex(Math.max(0, Math.min(EXPERIENCE_DATA.length - 1, index)));
+  };
+
+  const scrollToExpCard = (idx) => {
+    if (!experienceTrackRef.current) return;
+    const cardWidth = Math.min(window.innerWidth * 0.78, 295) + 14.4;
+    experienceTrackRef.current.scrollTo({
+      left: idx * cardWidth,
+      behavior: 'smooth'
     });
   };
 
@@ -1731,80 +1750,84 @@ export default function App() {
     return () => cancelAnimationFrame(frameId);
   }, []);
 
-  // Mobile Diagonal Skills River: Smooth continuous infinite flow across the curved wave
+  // Mobile Diagonal Skills River: Ultra-lightweight, 60/120fps hardware-efficient continuous flow
   useEffect(() => {
+    // Only run mobile river on mobile viewports (< 900px)
+    if (typeof window !== 'undefined' && window.innerWidth > 900) return;
+
     let frameId;
     let lastTime = null;
-    let unitLength = 0;
     let distance = 0;
-    let isVisible = true;
+    let isRunning = false;
 
-    // Measure exact geometric length of one repeating skills unit in SVG coordinates
-    const getUnitLength = () => {
-      if (mobileTextPathRef.current) {
-        try {
-          const el = mobileTextPathRef.current.parentElement || mobileTextPathRef.current;
-          if (el && el.getSubStringLength) {
-            const measured = el.getSubStringLength(0, MOBILE_SKILLS_UNIT.length);
-            if (measured && measured > 500) return measured;
-          }
-        } catch { }
-      }
-      return MOBILE_SKILLS_UNIT.length * 20.0;
-    };
-
-    unitLength = getUnitLength();
-
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(() => {
-        unitLength = getUnitLength();
-      });
-    }
-
-    const heroEl = document.getElementById('spark-effect-zone');
-    let observer = null;
-    if (typeof IntersectionObserver !== 'undefined' && heroEl) {
-      observer = new IntersectionObserver(([entry]) => {
-        isVisible = entry.isIntersecting;
-        if (isVisible) {
-          lastTime = null;
+    // Cache pre-measured unit length once to eliminate synchronous layout reflows in loop
+    let unitLength = 2200;
+    if (mobileTextPathRef.current) {
+      try {
+        const el = mobileTextPathRef.current.parentElement || mobileTextPathRef.current;
+        if (el && el.getSubStringLength) {
+          const measured = el.getSubStringLength(0, MOBILE_SKILLS_UNIT.length);
+          if (measured && measured > 500) unitLength = measured;
         }
-      }, { threshold: 0.05 });
-      observer.observe(heroEl);
+      } catch {}
     }
 
-    // Brisk, fluid, continuous velocity (~220px/s across curved wave in SVG coordinates)
-    const speed = 0.22;
+    // Smooth, gentle velocity (~120px/s in SVG coordinates) - calm and completely lag-free
+    const speed = 0.12;
 
     const animateMobileRiver = (timestamp) => {
-      if (isVisible) {
-        if (!lastTime) lastTime = timestamp;
-        const delta = Math.min(timestamp - lastTime, 48); // Cap frame spike
-        lastTime = timestamp;
+      if (!isRunning) return;
 
-        if (!unitLength || unitLength < 500) {
-          unitLength = getUnitLength();
-        }
+      if (!lastTime) lastTime = timestamp;
+      const delta = Math.min(timestamp - lastTime, 48); // Cap frame spike
+      lastTime = timestamp;
 
-        distance += speed * delta;
+      distance += speed * delta;
 
-        // Mathematical seamless modulus wrap:
-        // Advancing by unitLength is visually 100% identical. Perfectly continuous, zero stutter!
-        const currentOffset = (distance % unitLength) - unitLength * 2;
+      // Mathematical seamless modulus wrap using whole integer pixels:
+      const currentOffset = Math.round((distance % unitLength) - unitLength);
 
-        if (mobileTextPathRef.current) {
-          mobileTextPathRef.current.setAttribute('startOffset', `${currentOffset.toFixed(1)}px`);
-        }
+      if (mobileTextPathRef.current) {
+        mobileTextPathRef.current.setAttribute('startOffset', `${currentOffset}px`);
       }
 
       frameId = requestAnimationFrame(animateMobileRiver);
     };
 
-    frameId = requestAnimationFrame(animateMobileRiver);
+    const startAnimation = () => {
+      if (!isRunning) {
+        isRunning = true;
+        lastTime = null;
+        frameId = requestAnimationFrame(animateMobileRiver);
+      }
+    };
+
+    const stopAnimation = () => {
+      isRunning = false;
+      if (frameId) {
+        cancelAnimationFrame(frameId);
+        frameId = null;
+      }
+    };
+
+    const heroEl = document.getElementById('spark-effect-zone');
+    let observer = null;
+    if (typeof IntersectionObserver !== 'undefined' && heroEl) {
+      observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting) {
+          startAnimation();
+        } else {
+          stopAnimation();
+        }
+      }, { threshold: 0.05 });
+      observer.observe(heroEl);
+    } else {
+      startAnimation();
+    }
 
     return () => {
+      stopAnimation();
       if (observer) observer.disconnect();
-      cancelAnimationFrame(frameId);
     };
   }, []);
 
@@ -2060,42 +2083,102 @@ export default function App() {
     });
   };
 
-  // Global Click Animation & Haptic Click Sound: Fires ANYWHERE user clicks
+  // Global Click Animation & Haptic Click Sound: Confined strictly to Hero Section
   useEffect(() => {
     let lastClickTime = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    let isTouchScrolling = false;
+    let lastScrollTime = 0;
 
+    // Desktop Mouse PointerDown: Instant tactile feedback on mouse click down (Hero only)
     const handleGlobalPointerDown = (e) => {
-      // User requirement: "and click sound only applicaple on hero section not evrywhere"
+      // Touch/pen pointers: Do NOT play audio on pointerdown!
+      // On mobile devices, pointerdown fires on the very first touch contact before a scroll/swipe.
+      // Playing audio here causes scrolling touches to play unwanted click sounds.
+      if (e.pointerType === 'touch' || e.pointerType === 'pen') return;
+
       const isInsideHero = e && e.target && e.target.closest('#spark-effect-zone, #intro-section, [data-hero-section="true"]');
       if (!isInsideHero) return;
 
       const now = performance.now();
-      if (now - lastClickTime < 25) return;
+      if (now - lastClickTime < 80) return;
       lastClickTime = now;
 
       playTactileClickSound();
     };
 
+    // Track touch interactions to differentiate intentional taps from scroll/drag touches
+    const handleTouchStart = (e) => {
+      if (e.touches && e.touches.length > 0) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = performance.now();
+        isTouchScrolling = false;
+      }
+    };
+
+    const handleTouchMove = (e) => {
+      if (e.touches && e.touches.length > 0) {
+        const dx = Math.abs(e.touches[0].clientX - touchStartX);
+        const dy = Math.abs(e.touches[0].clientY - touchStartY);
+        // More than 8px movement indicates a drag or scroll gesture, NOT an intentional tap
+        if (dx > 8 || dy > 8) {
+          isTouchScrolling = true;
+        }
+      }
+    };
+
+    const handleWindowScroll = () => {
+      isTouchScrolling = true;
+      lastScrollTime = performance.now();
+    };
+
+    // Global Click Handler: Handles click ray burst animation AND touch tap click sound (Hero only)
     const handleGlobalSpark = (e) => {
-      // Keyboard activation fallback (Enter or Space on focused element where pointerdown doesn't fire)
+      // User requirement 1: "only add cliock animation to hero section"
       const isInsideHero = e && e.target && e.target.closest('#spark-effect-zone, #intro-section, [data-hero-section="true"]');
-      if (e.detail === 0 && isInsideHero) {
-        const now = performance.now();
-        if (now - lastClickTime >= 25) {
+      if (!isInsideHero) return;
+
+      // Avoid firing sparks inside text inputs/textareas so typing cursor isn't obstructed
+      if (e.target && (e.target.closest('input') || e.target.closest('textarea'))) return;
+
+      // User requirement 2: "in mobile view the click sound should not come when i touch screen for scrolling or what.. only few only"
+      // If the interaction was a touch scroll/drag, or recent momentum scrolling occurred within 100ms, ignore completely
+      const now = performance.now();
+      if (isTouchScrolling || (now - lastScrollTime < 100)) {
+        isTouchScrolling = false;
+        return;
+      }
+
+      // Check if this was a touch tap or keyboard activation (where pointerdown did not play sound)
+      const isTouchOrKeyboard = e.pointerType === 'touch' || e.pointerType === 'pen' || e.detail === 0 || (!e.pointerType && ('ontouchstart' in window));
+
+      if (isTouchOrKeyboard) {
+        // Enforce intentional tap duration (< 450ms) to reject long-press/hold gestures
+        const touchDuration = touchStartTime > 0 ? (now - touchStartTime) : 0;
+        if (touchDuration < 450 && (now - lastClickTime >= 80)) {
           lastClickTime = now;
           playTactileClickSound();
         }
       }
-      // Avoid firing sparks inside text inputs/textareas so typing cursor isn't obstructed
-      if (e.target.closest('input') || e.target.closest('textarea')) return;
+
+      // Single-Color Crisp Radial Click-Spark Ray Burst: Strictly inside Hero Section
       spawnSparkBurst(e.pageX, e.pageY);
     };
 
     window.addEventListener('pointerdown', handleGlobalPointerDown, { capture: true });
+    window.addEventListener('touchstart', handleTouchStart, { capture: true, passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { capture: true, passive: true });
+    window.addEventListener('scroll', handleWindowScroll, { capture: true, passive: true });
     window.addEventListener('click', handleGlobalSpark, { capture: true });
 
     return () => {
       window.removeEventListener('pointerdown', handleGlobalPointerDown, { capture: true });
+      window.removeEventListener('touchstart', handleTouchStart, { capture: true });
+      window.removeEventListener('touchmove', handleTouchMove, { capture: true });
+      window.removeEventListener('scroll', handleWindowScroll, { capture: true });
       window.removeEventListener('click', handleGlobalSpark, { capture: true });
     };
   }, []);
@@ -3335,7 +3418,11 @@ export default function App() {
           </li>
         </ul>
 
-        <div className="experience-cards-track">
+        <div
+          ref={experienceTrackRef}
+          onScroll={handleExperienceScroll}
+          className="experience-cards-track"
+        >
           {EXPERIENCE_DATA.map((exp, idx) => (
             <div key={idx} className={`visa-card ${flippedCards[idx] ? 'flipped' : ''}`} onClick={() => toggleCardFlip(idx)}>
               <div className="visa-card-inner">
@@ -3421,10 +3508,7 @@ export default function App() {
                         </span>
                       )}
                       {exp.network === 'rupay' && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                          <span style={{ fontSize: '1rem', fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.02em', color: '#ffffff' }}>RuPay</span>
-                          <span style={{ fontSize: '0.55rem', fontWeight: 800, color: '#f59e0b', alignSelf: 'flex-start', letterSpacing: '0.05em' }}>PLATINUM</span>
-                        </div>
+                        <span style={{ fontSize: '1rem', fontWeight: 900, fontStyle: 'italic', letterSpacing: '-0.02em', color: '#ffffff' }}>RuPay</span>
                       )}
                     </div>
                   </div>
@@ -3467,6 +3551,19 @@ export default function App() {
                 </div>
               </div>
             </div>
+          ))}
+        </div>
+
+        {/* Mobile Experience Carousel Indicators */}
+        <div className="experience-dots-container" aria-label="Experience cards pagination">
+          {EXPERIENCE_DATA.map((_, dIdx) => (
+            <button
+              key={dIdx}
+              type="button"
+              className={`experience-dot ${activeExpCardIndex === dIdx ? 'active' : ''}`}
+              onClick={() => scrollToExpCard(dIdx)}
+              aria-label={`Go to experience card ${dIdx + 1}`}
+            />
           ))}
         </div>
       </section>
@@ -3814,9 +3911,10 @@ export default function App() {
       {/* FLOATING GLASSMORPHISM ISLAND DOCK (Desktop only) */}
       <nav
         aria-label="Floating Navigation Dock"
-        className="menu-bar fixed desktop-dock"
+        className="menu-bar desktop-dock"
         style={{
-          bottom: '1.5rem',
+          position: 'fixed',
+          bottom: '1.75rem',
           left: '50%',
           transform: 'translateX(-50%)',
           height: '3.85rem',
@@ -3830,7 +3928,8 @@ export default function App() {
           fontWeight: 500,
           fontSize: '0.9rem',
           color: '#ffffff',
-          zIndex: 999
+          zIndex: 1000,
+          boxSizing: 'border-box'
         }}
       >
         <button
@@ -3943,7 +4042,7 @@ export default function App() {
       </div>
 
       {/* MOBILE FLOATING "LET'S TALK" BUTTON (Screenshot match: bottom-right pill button) */}
-      <div className="mobile-talk-container">
+      <div className={`mobile-talk-container ${mobileMenuState !== 'closed' ? 'is-menu-open' : ''}`}>
         <button
           id="mobile-talk-trigger-btn"
           onClick={openContactModal}
