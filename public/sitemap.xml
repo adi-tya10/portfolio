@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://meetwithadityaraj.netlify.app/</loc>
+    <lastmod>2026-10-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://meetwithadityaraj.netlify.app/web.png</image:loc>
+      <image:title>Aditya Raj - Full-Stack &amp; Backend Systems Engineer</image:title>
+      <image:caption>Engineering portfolio of Aditya Raj</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://meetwithadityaraj.netlify.app/snapmeet.png</image:loc>
+      <image:title>Snapmeet - EventTech SaaS Platform</image:title>
+      <image:caption>Enterprise EventTech platform automating ticketing and QR verification</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://meetwithadityaraj.netlify.app/kairo.png</image:loc>
+      <image:title>Kairo - Temporal Knowledge Engine</image:title>
+      <image:caption>Distributed bi-temporal knowledge graph system</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://meetwithadityaraj.netlify.app/prism.png</image:loc>
+      <image:title>PRISM - Machine Learning Operations Platform</image:title>
+      <image:caption>High-throughput ML experimentation and inference engine</image:caption>
+    </image:image>
+  </url>
+</urlset>

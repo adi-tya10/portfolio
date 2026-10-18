@@ -324,7 +324,7 @@ const PERSONAL_INFO = {
   twitter: "https://x.com/adityaraj10",
   instagram: "https://www.instagram.com/_.ad.itya_/",
   whatsapp: "https://wa.me/918102755701",
-  portfolio: "https://meetwithaditya.netlify.app",
+  portfolio: "https://meetwithadityaraj.netlify.app",
   buyCoffee: "https://buymeacoffee.com/adityaraj"
 };
 

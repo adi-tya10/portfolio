@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+# Crawl rules for Aditya Raj Portfolio
+User-agent: *
+Allow: /
+
+# Host
+Host: https://meetwithadityaraj.netlify.app
+
+# XML Sitemaps for Google Search Console & other search engines
+Sitemap: https://meetwithadityaraj.netlify.app/sitemap.xml
